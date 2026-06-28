@@ -1,0 +1,302 @@
+[
+  {
+    "id": "a01",
+    "name": "Colosseum Underground Tour",
+    "category": "culture",
+    "cost": 31,
+    "duration_hrs": 1,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a02",
+    "name": "Vatican Museums",
+    "category": "culture",
+    "cost": 45,
+    "duration_hrs": 1,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a03",
+    "name": "Scaligero Castle Tour",
+    "category": "culture",
+    "cost": 29,
+    "duration_hrs": 4,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a04",
+    "name": "Bologna Porticoes Walk",
+    "category": "culture",
+    "cost": 44,
+    "duration_hrs": 2,
+    "requires_mobility": true,
+    "is_vegan_friendly": false,
+    "requires_flight": true
+  },
+  {
+    "id": "a05",
+    "name": "Roman Forum Guide",
+    "category": "culture",
+    "cost": 36,
+    "duration_hrs": 3,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a06",
+    "name": "Sirmione Ruins",
+    "category": "culture",
+    "cost": 39,
+    "duration_hrs": 4,
+    "requires_mobility": true,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a07",
+    "name": "Pantheon Audio Guide",
+    "category": "culture",
+    "cost": 46,
+    "duration_hrs": 4,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a08",
+    "name": "Archiginnasio Theatre",
+    "category": "culture",
+    "cost": 37,
+    "duration_hrs": 2,
+    "requires_mobility": true,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a09",
+    "name": "Bologna Pasta Making",
+    "category": "food",
+    "cost": 52,
+    "duration_hrs": 3,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a10",
+    "name": "Rome Street Food Tour",
+    "category": "food",
+    "cost": 39,
+    "duration_hrs": 1,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a11",
+    "name": "Garda Wine Tasting",
+    "category": "food",
+    "cost": 51,
+    "duration_hrs": 4,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a12",
+    "name": "Trastevere Dinner",
+    "category": "food",
+    "cost": 45,
+    "duration_hrs": 1,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a13",
+    "name": "Modena Balsamic Tour",
+    "category": "food",
+    "cost": 59,
+    "duration_hrs": 1,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a14",
+    "name": "Gelato Masterclass",
+    "category": "food",
+    "cost": 59,
+    "duration_hrs": 4,
+    "requires_mobility": true,
+    "is_vegan_friendly": false,
+    "requires_flight": true
+  },
+  {
+    "id": "a15",
+    "name": "Mount Baldo Hike",
+    "category": "nature",
+    "cost": 20,
+    "duration_hrs": 3,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a16",
+    "name": "Villa Borghese Gardens",
+    "category": "nature",
+    "cost": 4,
+    "duration_hrs": 1,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a17",
+    "name": "Appian Way Bike Tour",
+    "category": "nature",
+    "cost": 8,
+    "duration_hrs": 3,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a18",
+    "name": "Monte San Luca Walk",
+    "category": "nature",
+    "cost": 19,
+    "duration_hrs": 3,
+    "requires_mobility": true,
+    "is_vegan_friendly": false,
+    "requires_flight": true
+  },
+  {
+    "id": "a19",
+    "name": "Sirmione Thermal Baths",
+    "category": "nature",
+    "cost": 25,
+    "duration_hrs": 1,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a20",
+    "name": "Tiber River Cruise",
+    "category": "nature",
+    "cost": 9,
+    "duration_hrs": 4,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a21",
+    "name": "Trastevere Pub Crawl",
+    "category": "nightlife",
+    "cost": 61,
+    "duration_hrs": 4,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a22",
+    "name": "Bologna Jazz Club",
+    "category": "nightlife",
+    "cost": 46,
+    "duration_hrs": 3,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a23",
+    "name": "Garda Lakeside Club",
+    "category": "nightlife",
+    "cost": 67,
+    "duration_hrs": 4,
+    "requires_mobility": true,
+    "is_vegan_friendly": false,
+    "requires_flight": false
+  },
+  {
+    "id": "a24",
+    "name": "Rome Rooftop Cocktails",
+    "category": "nightlife",
+    "cost": 73,
+    "duration_hrs": 3,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a25",
+    "name": "Testaccio VIP Night",
+    "category": "nightlife",
+    "cost": 28,
+    "duration_hrs": 2,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a26",
+    "name": "Lake Garda Windsurfing",
+    "category": "adventure",
+    "cost": 42,
+    "duration_hrs": 4,
+    "requires_mobility": true,
+    "is_vegan_friendly": false,
+    "requires_flight": true
+  },
+  {
+    "id": "a27",
+    "name": "Helicopter City View",
+    "category": "adventure",
+    "cost": 62,
+    "duration_hrs": 4,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a28",
+    "name": "Rome Vespa Tour",
+    "category": "adventure",
+    "cost": 64,
+    "duration_hrs": 2,
+    "requires_mobility": true,
+    "is_vegan_friendly": false,
+    "requires_flight": true
+  },
+  {
+    "id": "a29",
+    "name": "Garda Paragliding",
+    "category": "adventure",
+    "cost": 69,
+    "duration_hrs": 2,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  },
+  {
+    "id": "a30",
+    "name": "Apennines ATV Tour",
+    "category": "adventure",
+    "cost": 50,
+    "duration_hrs": 1,
+    "requires_mobility": false,
+    "is_vegan_friendly": true,
+    "requires_flight": false
+  }
+]
