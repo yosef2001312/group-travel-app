@@ -1,0 +1,12 @@
+[
+  { "id": "a01", "name": "City walking tour", "category": "culture", "cost": 15, "duration_hrs": 3, "requires_mobility": false, "is_vegan_friendly": true, "requires_flight": false },
+  { "id": "a02", "name": "Modern art museum", "category": "culture", "cost": 20, "duration_hrs": 2, "requires_mobility": false, "is_vegan_friendly": true, "requires_flight": false },
+  { "id": "a03", "name": "Street food tour", "category": "food", "cost": 25, "duration_hrs": 2, "requires_mobility": false, "is_vegan_friendly": false, "requires_flight": false },
+  { "id": "a04", "name": "Rooftop bar night", "category": "nightlife", "cost": 40, "duration_hrs": 3, "requires_mobility": false, "is_vegan_friendly": true, "requires_flight": false },
+  { "id": "a05", "name": "Mountain hike", "category": "nature", "cost": 0, "duration_hrs": 4, "requires_mobility": true, "is_vegan_friendly": true, "requires_flight": false },
+  { "id": "a06", "name": "Beach day", "category": "nature", "cost": 10, "duration_hrs": 5, "requires_mobility": false, "is_vegan_friendly": true, "requires_flight": false },
+  { "id": "a07", "name": "Vegan tasting menu", "category": "food", "cost": 35, "duration_hrs": 2, "requires_mobility": false, "is_vegan_friendly": true, "requires_flight": false },
+  { "id": "a08", "name": "Nightclub entry", "category": "nightlife", "cost": 30, "duration_hrs": 4, "requires_mobility": false, "is_vegan_friendly": true, "requires_flight": false },
+  { "id": "a09", "name": "Historic castle tour", "category": "culture", "cost": 18, "duration_hrs": 3, "requires_mobility": true, "is_vegan_friendly": true, "requires_flight": false },
+  { "id": "a10", "name": "Kayaking trip", "category": "adventure", "cost": 45, "duration_hrs": 3, "requires_mobility": true, "is_vegan_friendly": true, "requires_flight": false }
+]
