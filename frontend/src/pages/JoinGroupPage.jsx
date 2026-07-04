@@ -4,19 +4,24 @@ export default function JoinGroupPage({ onJoined, onBack }) {
   const [code, setCode] = useState('')
 
   return (
-    <div style={{ maxWidth: 500, margin: '80px auto', textAlign: 'center', fontFamily: 'sans-serif' }}>
+    <div className="page page-center">
+      <p className="eyebrow">Join group</p>
       <h1>Join a group</h1>
-      <label style={{ display: 'block', margin: '24px 0' }}>
-        Enter the group code
-        <input
-          type="text" value={code} onChange={e => setCode(e.target.value.trim())}
-          placeholder="e.g. GRP-A1B2"
-          style={{ display: 'block', margin: '8px auto', width: 200, textAlign: 'center', fontSize: 18 }}
-        />
-      </label>
-      <button onClick={() => code && onJoined(code)} disabled={!code}>Continue</button>
+      <p className="subtitle">Enter the code someone shared with you.</p>
+      <div className="card" style={{ display: 'inline-block', minWidth: 260 }}>
+        <div className="field" style={{ textAlign: 'center' }}>
+          <label>Group code</label>
+          <input
+            type="text" value={code} onChange={e => setCode(e.target.value.trim())}
+            placeholder="e.g. GRP-A1B2"
+            className="mono"
+            style={{ textAlign: 'center', fontSize: 18, letterSpacing: '0.05em' }}
+          />
+        </div>
+        <button className="btn btn-block" onClick={() => code && onJoined(code)} disabled={!code}>Continue</button>
+      </div>
       <div style={{ marginTop: 16 }}>
-        <button onClick={onBack} style={{ background: 'none', border: 'none', color: '#666', textDecoration: 'underline', cursor: 'pointer' }}>← Back</button>
+        <button className="btn-link" onClick={onBack}>← Back</button>
       </div>
     </div>
   )

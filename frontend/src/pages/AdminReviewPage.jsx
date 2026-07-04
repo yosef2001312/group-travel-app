@@ -56,44 +56,50 @@ export default function AdminReviewPage({ groupId, results, travelerNames, onDec
   if (finalized) {
     const chosen = results.itineraries.find(it => it.package_id === finalized)
     return (
-      <div style={{ maxWidth: 500, margin: '80px auto', textAlign: 'center', fontFamily: 'sans-serif' }}>
-        <h1>Decision made</h1>
-        <p>You picked: <strong>{chosen ? chosen.title : finalized}</strong></p>
-        <button onClick={() => onDecided(finalized)} style={{ marginTop: 24 }}>Go to buy page</button>
+      <div className="page page-center">
+        <p className="eyebrow">Decision made</p>
+        <h1>You picked</h1>
+        <p style={{ fontSize: 18, fontWeight: 700 }}>{chosen ? chosen.title : finalized}</p>
+        <button className="btn" onClick={() => onDecided(finalized)} style={{ marginTop: 20 }}>Go to buy page</button>
       </div>
     )
   }
 
   return (
-    <div style={{ maxWidth: 700, margin: '40px auto', fontFamily: 'sans-serif' }}>
-      <h1>Review votes</h1>
-      <button onClick={checkVotes} disabled={loading}>{loading ? 'Checking…' : 'Check votes'}</button>
+    <div className="page page-wide">
+      <div className="page-center">
+        <p className="eyebrow">Admin review</p>
+        <h1>Review the votes</h1>
+        <button className="btn btn-secondary" onClick={checkVotes} disabled={loading}>
+          {loading && <span className="spinner spinner-dark" />} {loading ? 'Checking…' : 'Check votes'}
+        </button>
 
-      {group && <p style={{ marginTop: 16 }}>{votesIn} of {totalVoters} travelers have voted.</p>}
+        {group && <p style={{ marginTop: 16 }}>{votesIn} of {totalVoters} travelers have voted.</p>}
 
-      {group && Object.keys(votes).length > 0 && (
-        <div style={{ marginTop: 16, textAlign: 'left' }}>
-          {Object.entries(votes).map(([travelerId, criterion]) => (
-            <div key={travelerId} style={{ fontSize: 14 }}>
-              {travelerNames[travelerId] || travelerId} voted <strong style={{ textTransform: 'capitalize' }}>{criterion}</strong>
-            </div>
-          ))}
-        </div>
-      )}
+        {group && Object.keys(votes).length > 0 && (
+          <div className="card" style={{ marginTop: 16, display: 'inline-block', textAlign: 'left' }}>
+            {Object.entries(votes).map(([travelerId, criterion]) => (
+              <div key={travelerId} style={{ fontSize: 14, marginBottom: 4 }}>
+                {travelerNames[travelerId] || travelerId} voted <strong style={{ textTransform: 'capitalize' }}>{criterion}</strong>
+              </div>
+            ))}
+          </div>
+        )}
 
-      {error && <div style={{ background: '#fdeaea', color: '#a33', padding: 12, marginTop: 16, borderRadius: 6 }}>{error}</div>}
+        {error && <div className="error-box" style={{ display: 'inline-block' }}>{error}</div>}
+      </div>
 
-      <h3 style={{ marginTop: 32 }}>Pick the final package</h3>
-      <p style={{ fontSize: 13, color: '#888' }}>You can follow the votes above, or override with your own call.</p>
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
+      <h3 style={{ marginTop: 36, textAlign: 'center' }}>Pick the final package</h3>
+      <p className="subtitle" style={{ textAlign: 'center' }}>You can follow the votes above, or override with your own call.</p>
+      <div className="cards-row">
         {results.itineraries.map(it => (
-          <div key={it.package_id} style={{ border: '1px solid #ccc', borderRadius: 8, padding: 12, width: 200 }}>
-            <div style={{ fontWeight: 'bold', textTransform: 'capitalize' }}>{it.fairness_criterion}</div>
-            <div style={{ fontSize: 13, marginBottom: 8 }}>{it.title}</div>
-            <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>
+          <div key={it.package_id} className="decision-card">
+            <span className="stamp">{it.fairness_criterion}</span>
+            <div style={{ fontWeight: 700, fontSize: 14, margin: '8px 0' }}>{it.title}</div>
+            <div className="subtitle" style={{ marginBottom: 12 }}>
               {tally[it.fairness_criterion] || 0} vote{(tally[it.fairness_criterion] || 0) === 1 ? '' : 's'}
             </div>
-            <button onClick={() => finalize(it.package_id)} disabled={finalizing} style={{ width: '100%' }}>
+            <button className="btn btn-block" onClick={() => finalize(it.package_id)} disabled={finalizing}>
               {finalizing ? 'Choosing…' : 'Choose this one'}
             </button>
           </div>

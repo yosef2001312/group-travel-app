@@ -5,6 +5,13 @@ import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <div className="bg-orbs">
+      <div className="orb orb-1" />
+      <div className="orb orb-2" />
+      <div className="orb orb-3" />
+    </div>
+    <div className="app-shell">
+      <App />
+    </div>
   </StrictMode>,
 )

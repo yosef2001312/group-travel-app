@@ -30,31 +30,39 @@ export default function CreateGroupPage({ onCreated, onBack }) {
 
   if (createdGroupId) {
     return (
-      <div style={{ maxWidth: 500, margin: '80px auto', textAlign: 'center', fontFamily: 'sans-serif' }}>
-        <h1>Group created</h1>
-        <p>Share this code with your group:</p>
-        <p style={{ fontSize: 32, fontWeight: 'bold', letterSpacing: 2 }}>{createdGroupId}</p>
-        <button onClick={() => onCreated(createdGroupId)}>Continue to my own preferences</button>
+      <div className="page page-center">
+        <p className="eyebrow">Group created</p>
+        <h1>Share this code</h1>
+        <div className="group-code">{createdGroupId}</div>
+        <div style={{ marginTop: 20 }}>
+          <button className="btn" onClick={() => onCreated(createdGroupId)}>Continue to my own preferences</button>
+        </div>
       </div>
     )
   }
 
   return (
-    <div style={{ maxWidth: 500, margin: '80px auto', textAlign: 'center', fontFamily: 'sans-serif' }}>
+    <div className="page page-center">
+      <p className="eyebrow">New group</p>
       <h1>Create a group</h1>
-      <label style={{ display: 'block', margin: '24px 0' }}>
-        How many travelers in total?
-        <input
-          type="number" min="1" max="10" value={expectedTravelers}
-          onChange={e => setExpectedTravelers(Number(e.target.value))}
-          style={{ display: 'block', margin: '8px auto', width: 80, textAlign: 'center', fontSize: 18 }}
-        />
-      </label>
-      <button onClick={createGroup} disabled={loading}>{loading ? 'Creating…' : 'Create group'}</button>
-      <div style={{ marginTop: 16 }}>
-        <button onClick={onBack} style={{ background: 'none', border: 'none', color: '#666', textDecoration: 'underline', cursor: 'pointer' }}>← Back</button>
+      <p className="subtitle">Set the number of travelers, then share the code you get.</p>
+      <div className="card" style={{ display: 'inline-block', minWidth: 260 }}>
+        <div className="field" style={{ textAlign: 'center' }}>
+          <label>How many travelers in total?</label>
+          <input
+            type="number" min="1" max="10" value={expectedTravelers}
+            onChange={e => setExpectedTravelers(Number(e.target.value))}
+            style={{ textAlign: 'center', fontSize: 20, fontWeight: 700 }}
+          />
+        </div>
+        <button className="btn btn-block" onClick={createGroup} disabled={loading}>
+          {loading && <span className="spinner" />} {loading ? 'Creating…' : 'Create group'}
+        </button>
       </div>
-      {error && <div style={{ background: '#fdeaea', color: '#a33', padding: 12, marginTop: 16, borderRadius: 6 }}>{error}</div>}
+      <div style={{ marginTop: 16 }}>
+        <button className="btn-link" onClick={onBack}>← Back</button>
+      </div>
+      {error && <div className="error-box">{error}</div>}
     </div>
   )
 }

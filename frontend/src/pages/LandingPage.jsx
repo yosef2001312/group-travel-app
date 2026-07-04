@@ -1,11 +1,15 @@
 export default function LandingPage({ onChoose }) {
   return (
-    <div style={{ maxWidth: 500, margin: '80px auto', textAlign: 'center', fontFamily: 'sans-serif' }}>
+    <div className="page page-center fade-up">
+        <div className="steps">
+  <div className="step-dot active" /><div className="step-dot" /><div className="step-dot" /><div className="step-dot" />
+</div>
+<p className="eyebrow">Start here</p>
       <h1>Group trip planner</h1>
-      <p style={{ color: '#666', marginBottom: 32 }}>Plan a trip together — everyone joins from their own device.</p>
-      <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
-        <button onClick={() => onChoose('create')} style={{ padding: '12px 24px', fontSize: 16 }}>Create a group</button>
-        <button onClick={() => onChoose('join')} style={{ padding: '12px 24px', fontSize: 16 }}>Join a group</button>
+      <p className="subtitle">Plan a trip together — everyone joins from their own device.</p>
+      <div className="btn-row">
+        <button className="btn" onClick={() => onChoose('create')}>Create a group</button>
+        <button className="btn btn-secondary" onClick={() => onChoose('join')}>Join a group</button>
       </div>
     </div>
   )

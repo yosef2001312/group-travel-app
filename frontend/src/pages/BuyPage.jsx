@@ -39,27 +39,27 @@ export default function BuyPage({ groupId, myTravelerId, chosenPackage, traveler
   }
 
   return (
-    <div style={{ maxWidth: 500, margin: '40px auto', fontFamily: 'sans-serif', textAlign: 'center' }}>
+    <div className="page page-center">
+      <p className="eyebrow">Checkout</p>
       <h1>Buy your ticket</h1>
-      <p style={{ color: '#888', fontSize: 13, marginBottom: 16 }}>
-        This is the package the group decided on — here's exactly what's included.
-      </p>
+      <p className="subtitle">This is the package the group decided on — here's exactly what's included.</p>
 
       {chosenPackage ? (
         <>
-          <div style={{ display: 'inline-block', textAlign: 'left' }}>
+          <div style={{ display: 'inline-block' }}>
             <ItineraryCard itinerary={chosenPackage} travelerNames={travelerNames} />
           </div>
-          <p style={{ fontSize: 12, color: '#888', marginTop: 8 }}>
+          <p className="debug-text" style={{ marginTop: 12 }}>
             This price is per person — everyone in the group pays it individually.
           </p>
         </>
       ) : (
-        <p style={{ color: '#888' }}>Loading package details…</p>
+        <p className="subtitle">Loading package details…</p>
       )}
 
-      <div style={{ marginTop: 16 }}>
-        <button onClick={buy} disabled={buying || !chosenPackage}>
+      <div style={{ marginTop: 8 }}>
+        <button className="btn" onClick={buy} disabled={buying || !chosenPackage}>
+          {buying && <span className="spinner" />}{' '}
           {buying
             ? 'Processing…'
             : chosenPackage
@@ -68,7 +68,7 @@ export default function BuyPage({ groupId, myTravelerId, chosenPackage, traveler
         </button>
       </div>
 
-      {error && <div style={{ background: '#fdeaea', color: '#a33', padding: 12, marginTop: 16, borderRadius: 6 }}>{error}</div>}
+      {error && <div className="error-box" style={{ display: 'inline-block' }}>{error}</div>}
     </div>
   )
 }

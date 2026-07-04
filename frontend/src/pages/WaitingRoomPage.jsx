@@ -55,30 +55,42 @@ export default function WaitingRoomPage({ groupId, isAdmin, onResultsReady }) {
   const ready = group && joined >= expected
 
   return (
-    <div style={{ maxWidth: 500, margin: '80px auto', textAlign: 'center', fontFamily: 'sans-serif' }}>
-      <h1>Waiting room</h1>
-      <p style={{ fontSize: 13, color: '#888' }}>Group: {groupId}</p>
+    <div className="page page-center fade-up">
+      <div className="steps">
+        <div className="step-dot done" />
+        <div className="step-dot done" />
+        <div className="step-dot active" />
+        <div className="step-dot" />
+      </div>
 
-      <button onClick={checkStatus} disabled={loading} style={{ marginTop: 16 }}>
-        {loading ? 'Checking…' : 'Check for updates'}
+      <p className="eyebrow">Waiting room</p>
+      <h1>Hang tight</h1>
+      <p className="subtitle" style={{ marginBottom: 8 }}>Group: <span className="mono">{groupId}</span></p>
+
+      <button className="btn btn-secondary" onClick={checkStatus} disabled={loading}>
+        {loading && <span className="spinner spinner-dark" />} {loading ? 'Checking…' : 'Check for updates'}
       </button>
 
-      {group && <p style={{ marginTop: 16 }}>{joined} of {expected} travelers have joined.</p>}
-      {error && <div style={{ background: '#fdeaea', color: '#a33', padding: 12, marginTop: 16, borderRadius: 6 }}>{error}</div>}
+      {group && <p style={{ marginTop: 20, fontSize: 16 }}>{joined} of {expected} travelers have joined.</p>}
+      {error && <div className="error-box">{error}</div>}
 
       {group && ready && isAdmin && (
-        <div style={{ marginTop: 24 }}>
-          <p style={{ color: '#3C3489', fontWeight: 'bold' }}>Everyone's in — you can generate the packages.</p>
-          <button onClick={generate} disabled={generating}>{generating ? 'Generating…' : 'Generate packages'}</button>
+        <div className="card" style={{ marginTop: 24, display: 'inline-block' }}>
+          <p style={{ color: 'var(--route)', fontWeight: 700, margin: '0 0 12px' }}>Everyone's in — you can generate the packages.</p>
+          <button className="btn btn-block" onClick={generate} disabled={generating}>
+            {generating && <span className="spinner" />} {generating ? 'Generating…' : 'Generate packages'}
+          </button>
         </div>
       )}
 
       {group && ready && !isAdmin && (
-        <p style={{ marginTop: 24, color: '#666' }}>Everyone's in. Waiting for the group admin to generate the packages — check back soon.</p>
+        <p className="subtitle" style={{ marginTop: 24 }}>Everyone's in. Waiting for the group admin to generate the packages — check back soon.</p>
       )}
 
       {group && !ready && (
-        <p style={{ marginTop: 24, color: '#666' }}>Still waiting on {expected - joined} more traveler{expected - joined === 1 ? '' : 's'}.</p>
+        <p className="subtitle" style={{ marginTop: 24 }}>
+          Still waiting on {expected - joined} more traveler{expected - joined === 1 ? '' : 's'}.
+        </p>
       )}
     </div>
   )
