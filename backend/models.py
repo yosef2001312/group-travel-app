@@ -86,3 +86,10 @@ class VoteResponse(BaseModel):
     winner: Optional[str]      # None until all votes are cast
     votes_cast: int
     votes_needed: int
+
+
+class CreateGroupRequest(BaseModel):
+    expected_travelers: int
+
+class FinalizeRequest(BaseModel):
+    chosen_package_id: str

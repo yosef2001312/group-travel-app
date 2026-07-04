@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from models import GenerateRequest, CheckoutRequest
+from pydantic import BaseModel
+from models import Traveler, CheckoutRequest
 from optimizer.constraint_filter import filter_activities
 from optimizer.pareto import generate_candidates, score_candidate, pareto_frontier
 from optimizer.social_choice import pick_three
@@ -18,15 +19,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# In-memory stores
-votes = {}
+# --- IN-MEMORY DATABASES ---
+groups_db = {}
 orders = {}
 
+# --- NEW REQUEST MODELS ---
+class CreateGroupRequest(BaseModel):
+    expected_travelers: int
+
+class VoteRequest(BaseModel):
+    traveler_id: str
+    chosen_criterion: str
+
+class FinalizeRequest(BaseModel):
+    chosen_package_id: str
+
+# --- UTILS ---
 def load_activities():
     path = os.path.join(os.path.dirname(__file__), "mock_data", "activities.json")
     with open(path) as f:
         return json.load(f)
 
+# --- SYSTEM ENDPOINTS ---
 @app.get("/ping")
 def ping():
     return {"status": "ok"}
@@ -35,28 +49,89 @@ def ping():
 def get_activities():
     return load_activities()
 
-@app.post("/api/generate")
-def generate(request: GenerateRequest):
+# --- GROUP LOBBY ENDPOINTS ---
+@app.post("/api/groups")
+def create_group(req: CreateGroupRequest):
+    """Creates a new group lobby and returns the invite code."""
+    group_id = f"GRP-{uuid.uuid4().hex[:6].upper()}"
+    
+    groups_db[group_id] = {
+        "group_id": group_id,
+        "expected_travelers": req.expected_travelers,
+        "status": "collecting",
+        "travelers": [],
+        "admin_traveler_id": None,
+        "results": None,
+        "votes": {},
+        "final_package_id": None,
+        "order_id": None,
+    }
+    return {"group_id": group_id}
+
+@app.post("/api/groups/{group_id}/join")
+def join_group(group_id: str, traveler: Traveler):
+    """Allows a traveler to submit their preferences to a specific group."""
+    if group_id not in groups_db:
+        raise HTTPException(status_code=404, detail="Group not found")
+        
+    group = groups_db[group_id]
+    
+    if group["status"] != "collecting":
+        raise HTTPException(status_code=400, detail="Group is no longer accepting members")
+
+    is_first = len(group["travelers"]) == 0
+    group["travelers"].append(traveler.model_dump())
+    
+    if is_first:
+        group["admin_traveler_id"] = traveler.id
+        
+    if len(group["travelers"]) >= group["expected_travelers"]:
+        group["status"] = "ready"
+        
+    return {
+        "joined": len(group["travelers"]),
+        "expected": group["expected_travelers"],
+        "is_admin": is_first,
+        "status": group["status"],
+    }
+
+@app.get("/api/groups/{group_id}")
+def get_group(group_id: str):
+    """Used by the frontend waiting room to poll for live updates."""
+    if group_id not in groups_db:
+        raise HTTPException(status_code=404, detail="Group not found")
+    return groups_db[group_id]
+
+
+# --- ALGORITHM & GENERATION ---
+@app.post("/api/groups/{group_id}/generate")
+def generate_for_group(group_id: str):
+    """Admin triggers this to run the algorithms on the group's collected data."""
+    if group_id not in groups_db:
+        raise HTTPException(status_code=404, detail="Group not found")
+        
+    group = groups_db[group_id]
+    
+    if group["status"] != "ready":
+        raise HTTPException(status_code=400, detail="Group is not ready to generate yet")
+
     activities = load_activities()
-    travelers = [t.dict() for t in request.travelers]
+    travelers = group["travelers"]
 
+    # 1. Constraint Filter
     filtered = filter_activities(activities, travelers)
-
     if len(filtered) < 3:
         raise HTTPException(
             status_code=400,
             detail={
                 "error": "too_many_vetoes",
-                "message": (
-                    f"Your combined vetoes left only {len(filtered)} activities. "
-                    "Try relaxing one constraint."
-                ),
+                "message": f"Your combined vetoes left only {len(filtered)} activities. Try relaxing one constraint.",
                 "remaining": len(filtered)
             }
         )
 
+    # 2. Pareto Candidates
     candidates = generate_candidates(filtered, travelers, n=80)
-
     if not candidates:
         raise HTTPException(
             status_code=400,
@@ -66,16 +141,13 @@ def generate(request: GenerateRequest):
             }
         )
 
-    scored = [
-        {"activities": c, "scores": score_candidate(c, travelers)}
-        for c in candidates
-    ]
+    scored = [{"activities": c, "scores": score_candidate(c, travelers)} for c in candidates]
     frontier = pareto_frontier(scored)
+    
+    # 3. Social Choice
     itineraries = pick_three(frontier)
 
-    pick_keys = set(
-        tuple(a["id"] for a in it["activities"]) for it in itineraries
-    )
+    # 4. Format Frontier Data for the UI Chart
     frontier_data = []
     for s in scored:
         key = tuple(a["id"] for a in s["activities"])
@@ -91,7 +163,7 @@ def generate(request: GenerateRequest):
             "fairness_criterion": criterion
         })
 
-    return {
+    group["results"] = {
         "itineraries": itineraries,
         "frontier_data": frontier_data,
         "stats": {
@@ -102,30 +174,39 @@ def generate(request: GenerateRequest):
             "itineraries_selected": len(itineraries)
         }
     }
+    group["status"] = "voting"
 
-@app.post("/api/vote")
-def vote(trip_id: str, traveler_id: str, chosen_criterion: str, num_travelers: int):
-    if trip_id not in votes:
-        votes[trip_id] = {}
+    return group["results"]
 
-    votes[trip_id][traveler_id] = chosen_criterion
-    current = votes[trip_id]
 
-    winner = None
-    if len(current) >= num_travelers:
-        winner = max(set(current.values()), key=list(current.values()).count)
-
+# --- VOTING & DECISION ---
+@app.post("/api/groups/{group_id}/vote")
+def vote(group_id: str, req: VoteRequest):
+    if group_id not in groups_db:
+        raise HTTPException(status_code=404, detail="Group not found")
+        
+    group = groups_db[group_id]
+    group["votes"][req.traveler_id] = req.chosen_criterion
+    
     return {
-        "votes": current,
-        "winner": winner,
-        "votes_cast": len(current),
-        "votes_needed": num_travelers
+        "votes": group["votes"],
+        "votes_cast": len(group["votes"]),
+        "votes_needed": group["expected_travelers"]
     }
 
-@app.get("/api/votes/{trip_id}")
-def get_votes(trip_id: str):
-    return votes.get(trip_id, {})
+@app.post("/api/groups/{group_id}/finalize")
+def finalize(group_id: str, req: FinalizeRequest):
+    if group_id not in groups_db:
+        raise HTTPException(status_code=404, detail="Group not found")
+        
+    group = groups_db[group_id]
+    group["final_package_id"] = req.chosen_package_id
+    group["status"] = "decided"
+    
+    return {"status": group["status"], "final_package_id": req.chosen_package_id}
 
+
+# --- E-COMMERCE CHECKOUT ---
 @app.post("/api/checkout")
 def checkout(request: CheckoutRequest):
     order_id = str(uuid.uuid4())[:8].upper()
