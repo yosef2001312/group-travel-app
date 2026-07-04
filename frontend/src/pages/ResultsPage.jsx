@@ -1,53 +1,62 @@
+import { useState } from 'react'
 import ItineraryCard from '../components/ItineraryCard'
+import ParetoChart from '../components/ParetoChart'
+import VotingPanel from '../components/VotingPanel'
 
-const MOCK_ITINERARIES = [
-  {
-    fairness_criterion: 'utilitarian',
-    explanation: 'Highest total group satisfaction — best on average, but not even for everyone',
-    total_cost: 85,
-    activities: [
-      { id: 'a09', name: 'Wine tasting', cost: 35, duration_hrs: 2 },
-      { id: 'a07', name: 'Rooftop bar night', cost: 40, duration_hrs: 3 },
-      { id: 'a11', name: 'Old town walking tour', cost: 10, duration_hrs: 2 },
-    ],
-    per_traveler_score: { t1: 0.50, t2: 0.95, t3: 0.65 },
-  },
-  {
-    fairness_criterion: 'leximin',
-    explanation: 'Best for your least-happy traveler — nobody scores too low',
-    total_cost: 40,
-    activities: [
-      { id: 'a05', name: 'Coastal hike', cost: 0, duration_hrs: 4 },
-      { id: 'a03', name: 'City museum', cost: 15, duration_hrs: 3 },
-      { id: 'a01', name: 'Street food tour', cost: 25, duration_hrs: 2 },
-    ],
-    per_traveler_score: { t1: 0.70, t2: 0.60, t3: 0.70 },
-  },
-  {
-    fairness_criterion: 'majority',
-    explanation: 'Gets the most travelers above a good-enough bar',
-    total_cost: 45,
-    activities: [
-      { id: 'a05', name: 'Coastal hike', cost: 0, duration_hrs: 4 },
-      { id: 'a09', name: 'Wine tasting', cost: 35, duration_hrs: 2 },
-      { id: 'a11', name: 'Old town walking tour', cost: 10, duration_hrs: 2 },
-    ],
-    per_traveler_score: { t1: 0.65, t2: 0.65, t3: 0.80 },
-  },
-]
+export default function ResultsPage({ itineraries, stats, frontier, tripId, travelers, onBack, onPurchased }) {
+  const [buyingId, setBuyingId] = useState(null)
+  const [checkoutError, setCheckoutError] = useState(null)
 
-export default function ResultsPage() {
+  const travelerNames = (travelers || []).map(t => t.name).filter(Boolean)
+  const criteria = itineraries.map(it => it.fairness_criterion)
+
+  async function handleBuy(packageId) {
+    setBuyingId(packageId)
+    setCheckoutError(null)
+    try {
+      const res = await fetch('http://localhost:8000/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ package_id: packageId, trip_id: tripId, traveler_names: travelerNames, payment_method: 'credit_card' }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => null)
+        let message = `Server responded with ${res.status}`
+        if (Array.isArray(err?.detail)) message = err.detail.map(d => `${d.loc?.at(-1)}: ${d.msg}`).join(', ')
+        else if (typeof err?.detail === 'string') message = err.detail
+        else if (err?.detail?.message) message = err.detail.message
+        throw new Error(message)
+      }
+      const data = await res.json()
+      onPurchased(data.order_id)
+    } catch (err) {
+      setCheckoutError(err.message)
+    } finally {
+      setBuyingId(null)
+    }
+  }
+
   return (
     <div style={{ maxWidth: 900, margin: '40px auto', fontFamily: 'sans-serif' }}>
+      <button onClick={onBack} style={{ marginBottom: 16 }}>← Back to preferences</button>
       <h1>Your trip packages</h1>
-      <p style={{ color: '#888', fontSize: 13, marginBottom: 24 }}>
-        Debug: hardcoded mock data — Day 4 wires this to the real API
-      </p>
+      {stats && (
+        <p style={{ color: '#888', fontSize: 13, marginBottom: 24 }}>
+          Debug: {stats.total_activities} activities → {stats.after_filter} after filter → {stats.candidates_generated} candidates → {stats.pareto_frontier_size} on frontier → {stats.itineraries_selected} selected
+        </p>
+      )}
+
+      {checkoutError && <div style={{ background: '#fdeaea', color: '#a33', padding: 12, marginBottom: 16, borderRadius: 6 }}>Checkout failed: {checkoutError}</div>}
+
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-        {MOCK_ITINERARIES.map((it, i) => (
-          <ItineraryCard key={i} itinerary={it} />
+        {itineraries.map((it, i) => (
+          <ItineraryCard key={it.package_id || i} itinerary={it} onBuy={handleBuy} buying={buyingId === it.package_id} />
         ))}
       </div>
+
+      <ParetoChart frontier={frontier} />
+
+      {travelers && travelers.length > 0 && <VotingPanel tripId={tripId} travelers={travelers} criteria={criteria} />}
     </div>
   )
 }

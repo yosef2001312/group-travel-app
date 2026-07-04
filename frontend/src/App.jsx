@@ -1,21 +1,48 @@
 import { useState } from 'react'
 import TravelerForm from './components/TravelerForm'
 import ResultsPage from './pages/ResultsPage'
+import ConfirmationPage from './pages/ConfirmationPage'
 
 function App() {
   const [page, setPage] = useState('form')
+  const [results, setResults] = useState(null)
+  const [tripId, setTripId] = useState(null)
+  const [orderId, setOrderId] = useState(null)
+
+  function handleResults(data) {
+    setResults(data)
+    setTripId('trip-' + Date.now()) // placeholder — confirm with B if the server should issue this instead
+    setPage('results')
+  }
+
+  function handlePurchased(id) {
+    setOrderId(id)
+    setPage('confirmation')
+  }
+
+  function backToStart() {
+    setResults(null)
+    setTripId(null)
+    setOrderId(null)
+    setPage('form')
+  }
 
   return (
     <div>
-      <div style={{ textAlign: 'center', padding: 12, background: '#f5f5f5' }}>
-        <button onClick={() => setPage('form')} disabled={page === 'form'}>
-          Preferences
-        </button>
-        <button onClick={() => setPage('results')} disabled={page === 'results'} style={{ marginLeft: 8 }}>
-          Results (mock)
-        </button>
-      </div>
-      {page === 'form' ? <TravelerForm /> : <ResultsPage />}
+      {page === 'form' && <TravelerForm onResults={handleResults} />}
+      {page === 'results' && results && (
+        <ResultsPage
+          itineraries={results.itineraries}
+          stats={results.stats}
+          tripId={tripId}
+          travelerNames={(results.travelers || []).map(t => t.name).filter(Boolean)}
+          onBack={() => setPage('form')}
+          onPurchased={handlePurchased}
+        />
+      )}
+      {page === 'confirmation' && (
+        <ConfirmationPage orderId={orderId} onBackToStart={backToStart} />
+      )}
     </div>
   )
 }
