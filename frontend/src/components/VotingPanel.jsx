@@ -13,19 +13,31 @@ export default function VotingPanel({ tripId, travelers, criteria }) {
   async function submitVotes() {
     setSubmitting(true)
     setError(null)
+    setTally(null)
     try {
       for (const t of travelers) {
         const chosen = votes[t.id]
         if (!chosen) continue
-        const res = await fetch('http://localhost:8000/api/vote', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ trip_id: tripId, traveler_id: t.id, chosen_criterion: chosen }),
+
+        const params = new URLSearchParams({
+          trip_id: tripId,
+          traveler_id: t.id,
+          chosen_criterion: chosen,
+          num_travelers: travelers.length,
         })
-        if (!res.ok) throw new Error(`Vote failed for ${t.name || t.id}`)
+
+        const res = await fetch(`http://localhost:8000/api/vote?${params}`, { method: 'POST' })
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => null)
+          throw new Error(`Vote failed for ${t.name || t.id}: ${JSON.stringify(err?.detail || res.status)}`)
+        }
       }
+
       const tallyRes = await fetch(`http://localhost:8000/api/votes/${tripId}`)
-      setTally(await tallyRes.json())
+      const tallyData = await tallyRes.json()
+      console.log('Tally response:', tallyData)
+      setTally(tallyData)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -47,7 +59,13 @@ export default function VotingPanel({ tripId, travelers, criteria }) {
           <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{t.name || t.id}</div>
           {criteria.map(c => (
             <label key={c} style={{ marginRight: 16, textTransform: 'capitalize' }}>
-              <input type="radio" name={`vote-${t.id}`} checked={votes[t.id] === c} onChange={() => setVote(t.id, c)} /> {c}
+              <input
+                type="radio"
+                name={`vote-${t.id}`}
+                checked={votes[t.id] === c}
+                onChange={() => setVote(t.id, c)}
+              />{' '}
+              {c}
             </label>
           ))}
         </div>
@@ -57,12 +75,15 @@ export default function VotingPanel({ tripId, travelers, criteria }) {
         {submitting ? 'Submitting…' : 'Submit votes'}
       </button>
 
-      {error && <div style={{ background: '#fdeaea', color: '#a33', padding: 12, marginTop: 12, borderRadius: 6 }}>{error}</div>}
+      {error && (
+        <div style={{ background: '#fdeaea', color: '#a33', padding: 12, marginTop: 12, borderRadius: 6 }}>
+          {error}
+        </div>
+      )}
 
       {tally && (
         <div style={{ marginTop: 16, background: '#f5f5f5', padding: 12, borderRadius: 6 }}>
-          <div style={{ fontSize: 13, marginBottom: 8 }}>Votes: {JSON.stringify(tally.votes)}</div>
-          <div style={{ fontWeight: 'bold' }}>{tally.winner ? `Winner: ${tally.winner}` : 'No majority winner yet'}</div>
+          <div style={{ fontSize: 13, marginBottom: 8 }}>Raw response: {JSON.stringify(tally)}</div>
         </div>
       )}
     </div>

@@ -1,9 +1,13 @@
-export default function ConfirmationPage({ orderId, onBackToStart }) {
+export default function ConfirmationPage({ orderId, chosenPackage, onBackToStart }) {
   return (
     <div style={{ maxWidth: 500, margin: '80px auto', textAlign: 'center', fontFamily: 'sans-serif' }}>
       <div style={{ fontSize: 48 }}>✅</div>
       <h1>Booking confirmed</h1>
-      <p style={{ color: '#666' }}>Your trip package has been booked.</p>
+      {chosenPackage && (
+        <p style={{ color: '#666' }}>
+          {chosenPackage.title} — {chosenPackage.currency} {chosenPackage.total_price}
+        </p>
+      )}
       <p style={{ marginTop: 16 }}>
         Order ID: <strong>{orderId}</strong>
       </p>

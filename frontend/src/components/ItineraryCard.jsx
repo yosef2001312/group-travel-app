@@ -1,6 +1,4 @@
-const TRAVELER_NAMES = { t1: 'Alex', t2: 'Bella', t3: 'Chris' }
-
-function ItineraryCard({ itinerary, onBuy, buying }) {
+function ItineraryCard({ itinerary, onBuy, buying, travelerNames = {} }) {
   return (
     <div style={{ border: '1px solid #ccc', borderRadius: 8, padding: 16, width: 260 }}>
       <div style={{ fontWeight: 'bold', textTransform: 'capitalize', color: '#3C3489' }}>
@@ -39,7 +37,7 @@ function ItineraryCard({ itinerary, onBuy, buying }) {
         {Object.entries(itinerary.per_traveler_score).map(([id, score]) => (
           <div key={id} style={{ marginBottom: 6 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
-              <span>{TRAVELER_NAMES[id] || id}</span>
+              <span>{travelerNames[id] || id}</span>
               <span>{Math.round(score * 100)}%</span>
             </div>
             <div style={{ background: '#eee', borderRadius: 4, height: 6 }}>
@@ -49,13 +47,15 @@ function ItineraryCard({ itinerary, onBuy, buying }) {
         ))}
       </div>
 
-      <button
-        onClick={() => onBuy(itinerary.package_id)}
-        disabled={buying}
-        style={{ marginTop: 12, width: '100%' }}
-      >
-        {buying ? 'Processing…' : 'Buy this package'}
-      </button>
+      {onBuy && (
+        <button
+          onClick={() => onBuy(itinerary.package_id)}
+          disabled={buying}
+          style={{ marginTop: 12, width: '100%' }}
+        >
+          {buying ? 'Processing…' : 'Buy this package'}
+        </button>
+      )}
     </div>
   )
 }
