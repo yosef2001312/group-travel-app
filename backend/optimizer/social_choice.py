@@ -1,73 +1,79 @@
-def format_result(candidate: dict, criterion: str, explanation: str) -> dict:
-    base_cost = sum(a["cost"] for a in candidate["activities"])
-    markup = 1.15  # 15% service fee, like a real travel agency
-    package_price = round(base_cost * markup, 2)
-    
-    # Generate a title based on the activities
-    categories = list(set(a["category"] for a in candidate["activities"]))
-    title = " & ".join(c.capitalize() for c in categories[:2]) + " Travel Package"
+import uuid
 
+def utilitarian(frontier):
+    """Max SUM of all traveler scores — best total happiness"""
+    best = max(frontier, key=lambda c: sum(c["scores"].values()))
+    return format_result(
+        best, 
+        "utilitarian",
+        "Maximizes total happiness across all travelers.",
+        "The Utilitarian Package"
+    )
+
+def leximin(frontier):
+    """Max MINIMUM score — best outcome for the least-happy traveler"""
+    best = max(frontier, key=lambda c: min(c["scores"].values()))
+    min_score = round(min(best['scores'].values()) * 100)
+    return format_result(
+        best, 
+        "leximin",
+        f"Fairest for all: Guarantees your least-happy traveler scores at least {min_score}%.",
+        "The Egalitarian Package"
+    )
+
+def majority(frontier, threshold=0.6):
+    """Max travelers scoring above threshold"""
+    def majority_score(c):
+        return sum(1 for s in c["scores"].values() if s >= threshold)
+    
+    best = max(frontier, key=majority_score)
+    count = majority_score(best)
+    return format_result(
+        best, 
+        "majority",
+        f"The Popular Choice: {count} out of {len(best['scores'])} travelers score above 60%.",
+        "The Majority Rules Package"
+    )
+
+def format_result(candidate, criterion, description, title):
+    """Transforms a raw algorithm candidate into a purchasable TravelPackage"""
+    base_cost = float(sum(a["cost"] for a in candidate["activities"]))
+    service_fee = round(base_cost * 0.15, 2)  # 15% e-commerce markup
+    total_price = round(base_cost + service_fee, 2)
+    
     return {
-        "package_id": f"pkg-{criterion[:3]}-{abs(hash(tuple(a['id'] for a in candidate['activities']))) % 10000}",
+        "package_id": f"pkg-{criterion[:3]}-{str(uuid.uuid4())[:6]}",
         "title": title,
-        "description": explanation,
+        "description": description,
         "fairness_criterion": criterion,
         "activities": candidate["activities"],
         "activities_count": len(candidate["activities"]),
         "base_cost": base_cost,
-        "service_fee": round(base_cost * 0.15, 2),
-        "total_price": package_price,
+        "service_fee": service_fee,
+        "total_price": total_price,
         "currency": "USD",
         "per_traveler_score": candidate["scores"],
         "status": "available"
     }
 
-def utilitarian(frontier: list[dict]) -> dict:
-    """Pick the itinerary that maximizes the SUM of all traveler scores."""
-    best = max(frontier, key=lambda c: sum(c["scores"].values()))
-    total = round(sum(best["scores"].values()), 2)
-    return format_result(best, "utilitarian",
-        f"Maximizes total group happiness (combined score: {total})")
-
-
-def leximin(frontier: list[dict]) -> dict:
-    """Pick the itinerary that maximizes the MINIMUM traveler score."""
-    best = max(frontier, key=lambda c: min(c["scores"].values()))
-    min_score = round(min(best["scores"].values()) * 100)
-    return format_result(best, "leximin",
-        f"Best for the least-happy traveler (minimum score: {min_score}%)")
-
-
-def majority(frontier: list[dict], threshold: float = 0.6) -> dict:
-    """Pick the itinerary where the most travelers score above threshold."""
-    def majority_count(c):
-        return sum(1 for s in c["scores"].values() if s >= threshold)
-    best = max(frontier, key=majority_count)
-    count = majority_count(best)
-    total = len(best["scores"])
-    return format_result(best, "majority",
-        f"{count} out of {total} travelers score above 60%")
-
-
-def pick_three(frontier: list[dict]) -> list[dict]:
+def pick_three(frontier):
+    """Selects the top 3 packages based on the social choice criteria"""
     if not frontier:
         return []
-    
-    if len(frontier) == 1:
-        # Only one option — return it labeled as all three criteria
-        result = format_result(frontier[0], "utilitarian", "Only one valid itinerary found")
-        return [result]
-    
+        
     u = utilitarian(frontier)
     l = leximin(frontier)
     m = majority(frontier)
-
+    
+    # Deduplicate in case two criteria pick the exact same itinerary
     seen = set()
     results = []
+    
     for r in [u, l, m]:
-        key = tuple(a["id"] for a in r["activities"])
+        # Create a unique tuple of activity IDs to check for duplicates
+        key = tuple(sorted(a["id"] for a in r["activities"]))
         if key not in seen:
             seen.add(key)
             results.append(r)
-
+            
     return results
