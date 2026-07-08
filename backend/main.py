@@ -1,16 +1,23 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from models import Traveler, CheckoutRequest
 from optimizer.constraint_filter import filter_activities
 from optimizer.pareto import generate_candidates, score_candidate, pareto_frontier
 from optimizer.social_choice import pick_three
+from hotel_suggester import suggest_hotel_area  
 import json
 import os
 import uuid
+import sqlite3
+from dotenv import load_dotenv
+load_dotenv()
 from datetime import datetime
-
+from models import (
+    Traveler, CheckoutRequest,
+    CreateGroupRequest, VoteRequest, FinalizeRequest
+)
+DB_PATH = os.path.join(os.path.dirname(__file__), "activities.db")
 app = FastAPI()
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -23,16 +30,26 @@ app.add_middleware(
 groups_db = {}
 orders = {}
 
-# --- NEW REQUEST MODELS ---
-class CreateGroupRequest(BaseModel):
-    expected_travelers: int
+def get_db():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
 
-class VoteRequest(BaseModel):
-    traveler_id: str
-    chosen_criterion: str
+def load_activities_for(destination: str) -> list[dict]:
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT * FROM activities WHERE country = ?", (destination,)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
 
-class FinalizeRequest(BaseModel):
-    chosen_package_id: str
+def get_destinations() -> list[str]:
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT DISTINCT country FROM activities ORDER BY country"
+    ).fetchall()
+    conn.close()
+    return [r["country"] for r in rows]
 
 # --- UTILS ---
 def load_activities():
@@ -44,6 +61,10 @@ def load_activities():
 @app.get("/ping")
 def ping():
     return {"status": "ok"}
+
+@app.get("/api/destinations")
+def destinations():
+    return get_destinations()
 
 @app.get("/api/activities")
 def get_activities():
@@ -57,6 +78,7 @@ def create_group(req: CreateGroupRequest):
     
     groups_db[group_id] = {
         "group_id": group_id,
+        "destination": req.destination,
         "expected_travelers": req.expected_travelers,
         "status": "collecting",
         "travelers": [],
@@ -79,6 +101,12 @@ def join_group(group_id: str, traveler: Traveler):
     if group["status"] != "collecting":
         raise HTTPException(status_code=400, detail="Group is no longer accepting members")
 
+    existing_ids = [t["id"] for t in group["travelers"]]
+    if traveler.id in existing_ids:
+        raise HTTPException(
+        status_code=400,
+        detail="This traveler has already joined this group."
+    )
     is_first = len(group["travelers"]) == 0
     group["travelers"].append(traveler.model_dump())
     
@@ -115,7 +143,12 @@ def generate_for_group(group_id: str):
     if group["status"] != "ready":
         raise HTTPException(status_code=400, detail="Group is not ready to generate yet")
 
-    activities = load_activities()
+    activities = load_activities_for(group["destination"])
+    if not activities:
+        raise HTTPException(
+        status_code=400,
+        detail=f"No activities found for destination: {group['destination']}."
+    )
     travelers = group["travelers"]
 
     # 1. Constraint Filter
@@ -210,13 +243,12 @@ def finalize(group_id: str, req: FinalizeRequest):
 @app.post("/api/checkout")
 def checkout(request: CheckoutRequest):
     order_id = str(uuid.uuid4())[:8].upper()
+    traveler_name = request.traveler_names[0] if request.traveler_names else "Traveler"
 
     order = {
         "order_id": order_id,
         "package_id": request.package_id,
-        "trip_id": request.trip_id,
-        "travelers": request.traveler_names,
-        "payment_method": request.payment_method,
+        "traveler_name": traveler_name,
         "status": "confirmed",
         "purchased_at": datetime.utcnow().isoformat(),
     }
