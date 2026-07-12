@@ -95,8 +95,8 @@ function App() {
           onPurchased={handlePurchased}
         />
       )}
-      {page === 'confirmation' && (
-        <ConfirmationPage orderId={myOrderId} chosenPackage={chosenPackage} onBackToStart={backToStart} />
+     {page === 'confirmation' && (
+        <ConfirmationPage orderId={myOrderId} chosenPackage={chosenPackage} groupId={groupId} onBackToStart={backToStart} />
       )}
     </div>
   )

@@ -267,3 +267,16 @@ def get_order(order_id: str):
     if order_id not in orders:
         raise HTTPException(status_code=404, detail="Order not found")
     return orders[order_id]
+
+
+@app.post("/api/groups/{group_id}/suggest-hotel")
+def suggest_hotel(group_id: str):
+    if group_id not in groups_db:
+        raise HTTPException(status_code=404, detail="Group not found")
+
+    group = groups_db[group_id]
+    package = next(
+        p for p in group["results"]["itineraries"]
+        if p["package_id"] == group["final_package_id"]
+    )
+    return suggest_hotel_area(package["activities"])

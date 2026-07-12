@@ -3,7 +3,7 @@ import json
 import os
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "activities.db")
-JSON_PATH = os.path.join(os.path.dirname(__file__), "mock_data", "activities.json")
+JSON_PATH = os.path.join(os.path.dirname(__file__), "mock_data", "activities_8_countries.json")
 
 def setup():
     conn = sqlite3.connect(DB_PATH)

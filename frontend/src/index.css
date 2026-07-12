@@ -267,3 +267,54 @@ h3 { font-size: 17px; font-weight: 700; margin: 0 0 12px; }
   border-radius: var(--radius); box-shadow: var(--shadow-md);
   padding: 18px; width: 230px; text-align: left;
 }
+
+
+/* ---------- background journey scene ---------- */
+.bg-scene { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+
+.scene-path { position: absolute; top: 0; left: 0; width: 100%; height: auto; }
+
+.scene-plane { animation: planeBob 6s ease-in-out infinite alternate; transform-origin: center; }
+@keyframes planeBob {
+  from { transform: translate(880px, 150px) rotate(14deg); }
+  to { transform: translate(896px, 138px) rotate(10deg); }
+}
+
+.scene-balloon {
+  position: absolute; width: 110px; right: 5%; top: 32%;
+  animation: balloonFloat 14s ease-in-out infinite alternate;
+}
+@keyframes balloonFloat {
+  from { transform: translateY(0) rotate(-2deg); }
+  to { transform: translateY(-34px) rotate(2deg); }
+}
+
+.scene-cloud { position: absolute; width: 150px; }
+.scene-cloud-1 { top: 12%; left: 6%; animation: cloudDrift 46s linear infinite; }
+.scene-cloud-2 { top: 46%; left: 58%; width: 110px; animation: cloudDrift 60s linear infinite reverse; }
+@keyframes cloudDrift {
+  from { transform: translateX(0); }
+  to { transform: translateX(90px); }
+}
+
+.scene-mountains { position: absolute; bottom: 0; left: 0; width: 100%; height: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-plane, .scene-balloon, .scene-cloud { animation: none; }
+}
+
+/* ---------- micro-polish ---------- */
+::selection { background: rgba(107, 79, 224, 0.22); }
+
+html { scroll-behavior: smooth; }
+
+.card, .ticket, .decision-card { will-change: transform; }
+
+/* make glass cards pop slightly more against the busier background */
+.card { border: 1px solid rgba(255, 255, 255, 0.85); }
+
+/* keep the scene subtle on small screens so it never crowds content */
+@media (max-width: 640px) {
+  .scene-balloon { width: 76px; right: 2%; top: 24%; opacity: 0.7; }
+  .scene-cloud-2 { display: none; }
+}
